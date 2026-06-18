@@ -731,27 +731,29 @@ with tab3:
         with col_map1:
             st.markdown("### Brecha espacial en vivienda propia pagada")
             st.write("Muestra la diferencia porcentual entre Profesionales y No Profesionales (Adultos ≥ 18 años).")
-            
-            fig_map = px.choropleth(
-                brecha_map,
-                geojson=chile_geo_filtrado,
-                locations="region",
-                featureidkey="properties.codregion",
-                color="Brecha (p.p.)",
-                color_continuous_scale=px.colors.diverging.PiYG,
-                color_continuous_midpoint=0,
-                hover_name="Región",
-                hover_data={
-                    "Profesional": ":.1f",
-                    "No Profesional": ":.1f",
-                    "Brecha (p.p.)": ":.1f",
-                    "region": False,
-                },
-                labels={
-                    "Profesional": "% Prof. c/ viv. pagada",
-                    "No Profesional": "% No Prof. c/ viv. pagada",
-                }
-            )
+        custom_scale = ["#a50026", "#d73027", "#f46d43", "#fdae61", "#fee08b",
+                        "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850"]
+        
+        fig_map = px.choropleth(
+            brecha_map,
+            geojson=chile_geo_filtrado,
+            locations="region",
+            featureidkey="properties.codregion",
+            color="Brecha (p.p.)",
+            color_continuous_scale=custom_scale,
+            color_continuous_midpoint=0,
+            hover_name="Región",
+            hover_data={
+                "Profesional": ":.1f",
+                "No Profesional": ":.1f",
+                "Brecha (p.p.)": ":.1f",
+                "region": False,
+            },
+            labels={
+                "Profesional": "% Prof. c/ viv. pagada",
+                "No Profesional": "% No Prof. c/ viv. pagada",
+            }
+        )
             
             fig_map.update_geos(
                 visible=False,
@@ -762,12 +764,22 @@ with tab3:
                 height=700,
                 margin=dict(l=0, r=0, t=20, b=0),
                 coloraxis_colorbar=dict(
-                    title="Brecha (p.p)",
+                    title="Brecha (Profesional − No Profesional)",
                     thickness=15,
                     len=0.7,
-                    ticksuffix=" pp",
+                    ticks="outside",
+                    tickvals=[-20, -10, -5, 0, 5, 10, 20],
+                    ticktext=["20% No Prof", "10% No Prof", "5% No Prof", "0", "5% Prof", "10% Prof", "20% Prof"],
+                    tickfont=dict(size=11),
+                    titlefont=dict(size=12),
                 )
             )
+            fig_map.add_annotation(
+                x=0.98, y=0.02, xref="paper", yref="paper",
+                text="<b>Negativo:</b> predomina No Profesional<br><b>Positivo:</b> predomina Profesional",
+                showarrow=False, align="right", bgcolor="rgba(255,255,255,0.8)", bordercolor="gray"
+            )
+        
             st.plotly_chart(fig_map, use_container_width=True)
             
         with col_map2:
