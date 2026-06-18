@@ -177,12 +177,12 @@ chile_geo_filtrado = get_geojson()
 
 # Sidebar Filters
 st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/a/a1/Logo_del_INE_Chile.svg", width=120)
-st.sidebar.title("Filtros del dashboard")
+st.sidebar.title("Filtros del Dashboard")
 st.sidebar.write("Ajusta los parámetros para explorar los datos interactivos a nivel nacional o regional.")
 
 # Region Filter
 regiones_options = ["Todas"] + [f"{k}: {v}" for k, v in sorted(REGIONES_MAP.items())]
-region_sel = st.sidebar.selectbox("Seleccione región", options=regiones_options, index=0)
+region_sel = st.sidebar.selectbox("Seleccione Región", options=regiones_options, index=0)
 
 if region_sel == "Todas":
     selected_region_id = None
@@ -191,7 +191,7 @@ else:
 
 # Area Filter (Urbano/Rural)
 area_sel = st.sidebar.multiselect(
-    "Área geográfica",
+    "Área Geográfica",
     options=["Urbano", "Rural"],
     default=["Urbano", "Rural"]
 )
@@ -265,23 +265,23 @@ with col3:
 
 # Tabs definitions
 tab1, tab2, tab3 = st.tabs([
-    "🏠 Tenencia de vivienda",
-    "💻 Acceso tecnológico",
-    "🗺️ Distribución territorial"
+    "🏠 Tenencia de Vivienda",
+    "💻 Acceso Tecnológico",
+    "🗺️ Distribución Territorial"
 ])
 
 # -------------------------------------------------------------
 # TAB 1: TENENCIA DE VIVIENDA
 # -------------------------------------------------------------
 with tab1:
-    st.subheader("Análisis de tenencia y jerarquías de vivienda")
+    st.subheader("Análisis de Tenencia y Jerarquías de Vivienda")
     st.write("Explora cómo se distribuyen las viviendas según el área geográfica, tipo y estado de pago.")
     
     col_left, col_right = st.columns(2)
     
     # 1. Sunburst: Jerarquía por Área y Estado
     with col_left:
-        st.markdown("### Jerarquía de vivienda propia: área y estado")
+        st.markdown("### Jerarquía de Vivienda Propia: Área y Estado")
         
         piyg_palette = px.colors.diverging.PiYG
         
@@ -337,7 +337,7 @@ with tab1:
 
     # 2. Treemap: Área, Tipo y Estado
     with col_right:
-        st.markdown("### Estructura de proporciones (Área -> Tipo -> Estado)")
+        st.markdown("### Estructura de Proporciones (Área -> Tipo -> Estado)")
         
         # Map p2_tipo_vivienda to names (Casa = 1, Departamento = 3)
         df_tree_data = df_housing[df_housing["p2_tipo_vivienda"].isin([1, 3])].copy()
@@ -406,7 +406,7 @@ with tab1:
     
     # 3. Probability by Cycle of Life (Age and Professional Status)
     with col_bottom_left:
-        st.markdown("### Probabilidad de vivienda pagada por edad")
+        st.markdown("### Probabilidad de Vivienda Pagada por Ciclo de Vida")
         
         df_age = pd.DataFrame(data["age_ownership"])
         if selected_region_id is not None:
@@ -448,7 +448,7 @@ with tab1:
         
     # 4. Stacked Bar Chart: Tenencia por Condición Profesional
     with col_bottom_right:
-        st.markdown("### Distribución de tenencia según condición profesional")
+        st.markdown("### Distribución de Tenencia según Condición Profesional")
         
         df_ten = pd.DataFrame(data["tenencia"])
         if selected_region_id is not None:
@@ -490,14 +490,14 @@ with tab1:
 # TAB 2: ACCESO TECNOLÓGICO Y CONECTIVIDAD
 # -------------------------------------------------------------
 with tab2:
-    st.subheader("Acceso a tecnologías y conectividad")
+    st.subheader("Acceso a Tecnologías y Conectividad")
     st.write("Analiza las brechas digitales y de conectividad según tramos de edad y condición profesional.")
     
     col_tech_left, col_tech_right = st.columns(2)
     
     # 5. Radar Chart: Tech access proportions
     with col_tech_left:
-        st.markdown("### Acceso a tecnologías digitales (Perfil General)")
+        st.markdown("### Acceso a Tecnologías Digitales (Perfil General)")
         
         df_rad = pd.DataFrame(data["radar"])
         if selected_region_id is not None:
@@ -561,7 +561,7 @@ with tab2:
 
     # 6. Line Plot: Internet Access (acceso_internet) by Age/Prof
     with col_tech_right:
-        st.markdown("### Acceso a internet por edad y condición profesional")
+        st.markdown("### Acceso a Internet por Edad y Condición Profesional")
         
         df_int = pd.DataFrame(data["internet"])
         if selected_region_id is not None:
@@ -600,7 +600,7 @@ with tab2:
     
     # 7. Line Plot: All services by age and professional status
     with col_tech_bot_left:
-        st.markdown("### Acceso detallado a tecnologías por edad")
+        st.markdown("### Acceso Detallado a Tecnologías por Edad")
         
         df_t = pd.DataFrame(data["tech"])
         if selected_region_id is not None:
@@ -654,7 +654,7 @@ with tab2:
 
     # 8. Line Plot: Selected technologies (Mobile, Computer, Mobile internet) (15+ years)
     with col_tech_bot_right:
-        st.markdown("### Acceso a tecnologías seleccionadas (15+ años)")
+        st.markdown("### Acceso a Tecnologías Seleccionadas (15+ años)")
         
         # We filter for age >= 15
         df_tech_sel = df_tech_detail[
@@ -689,7 +689,7 @@ with tab2:
 # TAB 3: ANÁLISIS GEOGRÁFICO Y LISA
 # -------------------------------------------------------------
 with tab3:
-    st.subheader("Análisis espacial y territorial de brechas")
+    st.subheader("Análisis Espacial y Territorial de Brechas")
     st.write("Visualiza la brecha en vivienda propia pagada a lo largo del territorio nacional y analiza los agrupamientos espaciales significativos.")
     
     if chile_geo_filtrado is None:
@@ -729,71 +729,49 @@ with tab3:
         col_map1, col_map2 = st.columns(2)
         
         with col_map1:
-            st.markdown("### Brecha espacial en vivienda propia pagada")
+            st.markdown("### Brecha Espacial en Vivienda Propia Pagada")
             st.write("Muestra la diferencia porcentual entre Profesionales y No Profesionales (Adultos ≥ 18 años).")
-
-        custom_scale = [
-            "#a50026", "#d73027", "#f46d43", "#fdae61", "#fee08b",
-            "#d9ef8b", "#a6d96a", "#66bd63", "#1a9850"
-        ]
-        
-        fig_map = px.choropleth(
-            brecha_map,
-            geojson=chile_geo_filtrado,
-            locations="region",
-            featureidkey="properties.codregion",
-            color="Brecha (p.p.)",
-            color_continuous_scale=custom_scale,
-            color_continuous_midpoint=0,
-            hover_name="Región",
-            hover_data={
-                "Profesional": ":.1f",
-                "No Profesional": ":.1f",
-                "Brecha (p.p.)": ":+.1f",
-                "region": False,
-            },
-            labels={
-                "Profesional": "% Prof. c/ viv. pagada",
-                "No Profesional": "% No Prof. c/ viv. pagada",
-                "Brecha (p.p.)": "Brecha (p.p.)"
-            }
-        )
-        
-        # Ajustes geográficos (oculta ejes y centra el mapa)
-        fig_map.update_geos(visible=False, lataxis_range=[-56, -17], lonaxis_range=[-76, -64])
-        
-        # Barra de color: título explícito y ticks con texto interpretativo
-        fig_map.update_layout(
-            height=700,
-            margin=dict(l=0, r=0, t=20, b=0),
-            coloraxis_colorbar=dict(
-                title="Brecha (Profesional − No Profesional)",
-                thickness=15,
-                len=0.7,
-                ticks="outside",
-                tickvals=[-20, -10, -5, 0, 5, 10, 20],
-                ticktext=[
-                    "20% No Prof", "10% No Prof", "5% No Prof",
-                    "0", "5% Prof", "10% Prof", "20% Prof"
-                ],
-                tickfont=dict(size=11),
-                titlefont=dict(size=12),
+            
+            fig_map = px.choropleth(
+                brecha_map,
+                geojson=chile_geo_filtrado,
+                locations="region",
+                featureidkey="properties.codregion",
+                color="Brecha (p.p.)",
+                color_continuous_scale=px.colors.diverging.PiYG,
+                color_continuous_midpoint=0,
+                hover_name="Región",
+                hover_data={
+                    "Profesional": ":.1f",
+                    "No Profesional": ":.1f",
+                    "Brecha (p.p.)": ":.1f",
+                    "region": False,
+                },
+                labels={
+                    "Profesional": "% Prof. c/ viv. pagada",
+                    "No Profesional": "% No Prof. c/ viv. pagada",
+                }
             )
-        )
-        
-        # Anotación explicativa junto al mapa para reforzar interpretación
-        fig_map.add_annotation(
-            x=0.98, y=0.02, xref="paper", yref="paper",
-            text="<b>Negativo:</b> predomina No Profesional<br><b>Positivo:</b> predomina Profesional",
-            showarrow=False, align="right",
-            bgcolor="rgba(255,255,255,0.85)", bordercolor="gray", borderwidth=0.5
-        )
-        
-        # Mostrar en Streamlit
-        st.plotly_chart(fig_map, use_container_width=True)
-        
+            
+            fig_map.update_geos(
+                visible=False,
+                lataxis_range=[-56, -17],
+                lonaxis_range=[-76, -64],
+            )
+            fig_map.update_layout(
+                height=700,
+                margin=dict(l=0, r=0, t=20, b=0),
+                coloraxis_colorbar=dict(
+                    title="Brecha<br>(p.p.)",
+                    thickness=15,
+                    len=0.7,
+                    ticksuffix=" pp",
+                )
+            )
+            st.plotly_chart(fig_map, use_container_width=True)
+            
         with col_map2:
-            st.markdown("### Agrupamiento espacial (LISA) de la brecha")
+            st.markdown("### Agrupamiento Espacial (LISA) de la Brecha")
             st.write("Identificación de patrones espaciales y regiones atípicas significativas (Moran Local).")
             
             colores_lisa = {
