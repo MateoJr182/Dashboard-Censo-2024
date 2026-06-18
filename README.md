@@ -1,6 +1,8 @@
 # Dashboard-Censo-2024
 Dashboard with data from the 2024 Census to analyze housing tenure in Chile, comparing professionals and non-professionals.
 
+---
+
 ## Estructura del Proyecto
 
 *   `app.py`: La aplicación principal del dashboard interactivo.
@@ -8,3 +10,25 @@ Dashboard with data from the 2024 Census to analyze housing tenure in Chile, com
 *   `aggregated_data.json`: El archivo consolidado y ligero (< 150 KB) generado por `process_data.py` que contiene los datos agregados para los gráficos.
 *   `requirements.txt`: Archivo de dependencias necesarias para ejecutar la app en local o en la nube.
 *   `Análisis_D2.ipynb`: El notebook original de análisis y visualización.
+
+---
+
+## Cómo Ejecutar en Local
+
+### 1. Requisitos
+Asegúrate de tener instalado Python 3.9 o superior.
+
+### 2. Instalar Dependencias
+Abre una terminal en esta carpeta y ejecuta:
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Ejecutar la App
+Inicia el servidor local de Streamlit con:
+```bash
+streamlit run app.py
+```
+Se abrirá automáticamente una pestaña en tu navegador en `http://localhost:8501` con tu dashboard interactivo.
+
+---
