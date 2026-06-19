@@ -176,7 +176,7 @@ def get_geojson():
 chile_geo_filtrado = get_geojson()
 
 # Sidebar Filters
-st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/a/a1/Logo_del_INE_Chile.svg", width=120)
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Logo_del_INE_Chile.svg/640px-Logo_del_INE_Chile.svg.png", width=120)
 st.sidebar.title("Filtros del Dashboard")
 st.sidebar.write("Ajusta los parámetros para explorar los datos interactivos a nivel nacional o regional.")
 
