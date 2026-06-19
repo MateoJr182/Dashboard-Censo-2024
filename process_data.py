@@ -180,6 +180,101 @@ lisa_static = [
 ]
 df_lisa = pd.DataFrame(lisa_static)
 
+# --- Casen history data (pre-computed and verified from the notebook) ---
+casen_history = [
+    {"año": 2006, "Condición": "No Profesional", "Porcentaje Pagada": 59.399803},
+    {"año": 2006, "Condición": "Profesional", "Porcentaje Pagada": 40.183918},
+    {"año": 2009, "Condición": "No Profesional", "Porcentaje Pagada": 59.657093},
+    {"año": 2009, "Condición": "Profesional", "Porcentaje Pagada": 42.167283},
+    {"año": 2011, "Condición": "No Profesional", "Porcentaje Pagada": 80.806220},
+    {"año": 2011, "Condición": "Profesional", "Porcentaje Pagada": 74.837512},
+    {"año": 2013, "Condición": "No Profesional", "Porcentaje Pagada": 66.419785},
+    {"año": 2013, "Condición": "Profesional", "Porcentaje Pagada": 56.388570},
+    {"año": 2015, "Condición": "No Profesional", "Porcentaje Pagada": 65.797518},
+    {"año": 2015, "Condición": "Profesional", "Porcentaje Pagada": 60.095941},
+    {"año": 2017, "Condición": "No Profesional", "Porcentaje Pagada": 57.285561},
+    {"año": 2017, "Condición": "Profesional", "Porcentaje Pagada": 35.413217},
+    {"año": 2020, "Condición": "No Profesional", "Porcentaje Pagada": 64.570562},
+    {"año": 2020, "Condición": "Profesional", "Porcentaje Pagada": 56.666667},
+    {"año": 2022, "Condición": "No Profesional", "Porcentaje Pagada": 62.610249},
+    {"año": 2022, "Condición": "Profesional", "Porcentaje Pagada": 53.468192},
+    {"año": 2024, "Condición": "No Profesional", "Porcentaje Pagada": 61.824125},
+    {"año": 2024, "Condición": "Profesional", "Porcentaje Pagada": 52.781086}
+]
+
+# --- Pure Python Spatial Autocorrelation Calculation ---
+NEIGHBORS = {
+    1: [15, 2, 3, 4],
+    2: [3, 1, 15, 4],
+    3: [4, 2, 5, 13],
+    4: [5, 3, 13, 6],
+    5: [13, 6, 4, 7],
+    6: [13, 7, 5, 16],
+    7: [16, 6, 13, 8],
+    8: [16, 9, 7, 14],
+    9: [8, 14, 16, 7],
+    10: [14, 11, 9, 8],
+    11: [10, 12, 14, 9],
+    12: [11, 10, 14, 9],
+    13: [6, 5, 7, 4],
+    14: [9, 8, 10, 16],
+    15: [1, 2, 3, 4],
+    16: [8, 7, 9, 6]
+}
+
+# Pivot regional rates to calculate the brecha for each region dynamically
+df_pivot = df_pct_pagada.pivot(index="region", columns="profesional", values=["is_pagada_sum", "count"])
+df_pivot.columns = [f"{val}_{col}" for val, col in df_pivot.columns]
+df_pivot = df_pivot.fillna(0)
+
+# Calculate rates (in percentage)
+tasa_prof = df_pivot["is_pagada_sum_1"] / df_pivot["count_1"] * 100
+tasa_noprof = df_pivot["is_pagada_sum_0"] / df_pivot["count_0"] * 100
+brechas_dict = (tasa_prof - tasa_noprof).to_dict()
+
+# Standardize brechas
+regions_sorted = sorted(brechas_dict.keys())
+y_vals = np.array([brechas_dict[rid] for rid in regions_sorted])
+mean_y = np.mean(y_vals)
+std_y = np.std(y_vals)
+z_vals = (y_vals - mean_y) / std_y
+z_dict = {rid: z_vals[regions_sorted.index(rid)] for rid in regions_sorted}
+
+# Calculate spatial lag of brechas and standardized lag
+lag_y_vals = []
+z_lag_vals = []
+for rid in regions_sorted:
+    nbs = NEIGHBORS[rid]
+    lag_y_vals.append(float(np.mean([brechas_dict[nb] for nb in nbs])))
+    z_lag_vals.append(float(np.mean([z_dict[nb] for nb in nbs])))
+
+# Global Moran's I
+moran_i = float(np.sum(z_vals * np.array(z_lag_vals)) / np.sum(z_vals**2))
+
+# Determine quadrants and build records
+spatial_correlation = []
+for idx, rid in enumerate(regions_sorted):
+    zi = float(z_vals[idx])
+    zlag_i = z_lag_vals[idx]
+    
+    if zi >= 0 and zlag_i >= 0:
+        quad = "Alto-Alto"
+    elif zi < 0 and zlag_i >= 0:
+        quad = "Bajo-Alto"
+    elif zi < 0 and zlag_i < 0:
+        quad = "Bajo-Bajo"
+    else:
+        quad = "Alto-Bajo"
+        
+    spatial_correlation.append({
+        "region": rid,
+        "brecha": float(brechas_dict[rid]),
+        "lag_brecha": lag_y_vals[idx],
+        "z_brecha": zi,
+        "z_lag_brecha": zlag_i,
+        "quadrant": quad
+    })
+
 # Package all data into a JSON dictionary
 output_dict = {
     "housing_counts": housing_counts.to_dict(orient="records"),
@@ -189,7 +284,12 @@ output_dict = {
     "pct_pagada": df_pct_pagada.to_dict(orient="records"),
     "internet": df_internet.to_dict(orient="records"),
     "tech": df_tech.to_dict(orient="records"),
-    "lisa": df_lisa.to_dict(orient="records")
+    "lisa": df_lisa.to_dict(orient="records"),
+    "casen_history": casen_history,
+    "spatial_correlation": {
+        "moran_i": moran_i,
+        "regions_spatial": spatial_correlation
+    }
 }
 
 output_path = os.path.join(BASE_DIR, "aggregated_data.json")
@@ -198,3 +298,4 @@ with open(output_path, "w", encoding="utf-8") as f:
 
 print(f"🎉 ¡Preprocesamiento completo! Archivo ligero guardado en: {output_path}")
 print(f"💾 Tamaño del archivo generado: {os.path.getsize(output_path) / 1024:.2f} KB")
+

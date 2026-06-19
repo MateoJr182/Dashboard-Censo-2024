@@ -17521,5 +17521,230 @@
       "region_name": "Región del Libertador Bernardo O'Higgins",
       "cluster_lisa": "No significativo"
     }
-  ]
+  ],
+  "casen_history": [
+    {
+      "año": 2006,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 59.399803
+    },
+    {
+      "año": 2006,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 40.183918
+    },
+    {
+      "año": 2009,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 59.657093
+    },
+    {
+      "año": 2009,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 42.167283
+    },
+    {
+      "año": 2011,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 80.80622
+    },
+    {
+      "año": 2011,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 74.837512
+    },
+    {
+      "año": 2013,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 66.419785
+    },
+    {
+      "año": 2013,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 56.38857
+    },
+    {
+      "año": 2015,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 65.797518
+    },
+    {
+      "año": 2015,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 60.095941
+    },
+    {
+      "año": 2017,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 57.285561
+    },
+    {
+      "año": 2017,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 35.413217
+    },
+    {
+      "año": 2020,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 64.570562
+    },
+    {
+      "año": 2020,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 56.666667
+    },
+    {
+      "año": 2022,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 62.610249
+    },
+    {
+      "año": 2022,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 53.468192
+    },
+    {
+      "año": 2024,
+      "Condición": "No Profesional",
+      "Porcentaje Pagada": 61.824125
+    },
+    {
+      "año": 2024,
+      "Condición": "Profesional",
+      "Porcentaje Pagada": 52.781086
+    }
+  ],
+  "spatial_correlation": {
+    "moran_i": 0.48546403795137105,
+    "regions_spatial": [
+      {
+        "region": 1,
+        "brecha": -10.54855106554929,
+        "lag_brecha": -12.490765208573041,
+        "z_brecha": 1.3033957570209913,
+        "z_lag_brecha": 0.9035094711338484,
+        "quadrant": "Alto-Alto"
+      },
+      {
+        "region": 2,
+        "brecha": -8.007097340710274,
+        "lag_brecha": -13.126128639782795,
+        "z_brecha": 1.826660657768597,
+        "z_lag_brecha": 0.7726932459469469,
+        "quadrant": "Alto-Alto"
+      },
+      {
+        "region": 3,
+        "brecha": -17.826978539673178,
+        "lag_brecha": -13.846150582621792,
+        "z_brecha": -0.19517397597201389,
+        "z_lag_brecha": 0.6244465134672471,
+        "quadrant": "Bajo-Alto"
+      },
+      {
+        "region": 4,
+        "brecha": -17.613548954466708,
+        "lag_brecha": -15.913112639530123,
+        "z_brecha": -0.15123053933645594,
+        "z_lag_brecha": 0.19887563449099716,
+        "quadrant": "Bajo-Alto"
+      },
+      {
+        "region": 5,
+        "brecha": -14.721469903573869,
+        "lag_brecha": -16.937548336706335,
+        "z_brecha": 0.4442252986861428,
+        "z_lag_brecha": -0.012047443968426427,
+        "quadrant": "Alto-Bajo"
+      },
+      {
+        "region": 6,
+        "brecha": -16.061515983137127,
+        "lag_brecha": -16.59134181814043,
+        "z_brecha": 0.168320578499155,
+        "z_lag_brecha": 0.05923369635099285,
+        "quadrant": "Alto-Alto"
+      },
+      {
+        "region": 7,
+        "brecha": -19.03264227748518,
+        "lag_brecha": -17.285999711977663,
+        "z_brecha": -0.4434104517871095,
+        "z_lag_brecha": -0.0837907822455255,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 8,
+        "brecha": -20.471227773270847,
+        "lag_brecha": -19.240113347839632,
+        "z_brecha": -0.7396036459861951,
+        "z_lag_brecha": -0.4861270780927484,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 9,
+        "brecha": -21.941410473845366,
+        "lag_brecha": -18.872567672696004,
+        "z_brecha": -1.0423024507601053,
+        "z_lag_brecha": -0.41045237689927083,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 10,
+        "brecha": -21.46407059698251,
+        "lag_brecha": -21.44302995438227,
+        "z_brecha": -0.9440220056556647,
+        "z_lag_brecha": -0.9396899064109389,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 11,
+        "brecha": -24.941849890151232,
+        "lag_brecha": -20.428246443435327,
+        "z_brecha": -1.660068817319443,
+        "z_lag_brecha": -0.7307541355384657,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 12,
+        "brecha": -19.889873022651805,
+        "lag_brecha": -21.691240660310186,
+        "z_brecha": -0.6199073741600806,
+        "z_lag_brecha": -0.9907944963283064,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 13,
+        "brecha": -15.042486131736318,
+        "lag_brecha": -16.857294279665723,
+        "z_brecha": 0.3781306367507047,
+        "z_lag_brecha": 0.0044762215154330945,
+        "quadrant": "Alto-Alto"
+      },
+      {
+        "region": 14,
+        "brecha": -18.41763168026163,
+        "lag_brecha": -20.361369450966272,
+        "z_brecha": -0.31678471157801225,
+        "z_lag_brecha": -0.7169847001619329,
+        "quadrant": "Bajo-Bajo"
+      },
+      {
+        "region": 15,
+        "brecha": -6.515435999442005,
+        "lag_brecha": -13.499043975099863,
+        "z_brecha": 2.133781742075266,
+        "z_lag_brecha": 0.6959129748702796,
+        "quadrant": "Alto-Alto"
+      },
+      {
+        "region": 16,
+        "brecha": -17.56876895976636,
+        "lag_brecha": -19.376699126934632,
+        "z_brecha": -0.14201069824576656,
+        "z_lag_brecha": -0.5142489925085638,
+        "quadrant": "Bajo-Bajo"
+      }
+    ]
+  }
 }
