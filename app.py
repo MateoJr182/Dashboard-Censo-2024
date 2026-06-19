@@ -9,7 +9,7 @@ import copy
 
 # Set page config
 st.set_page_config(
-    page_title="Dashboard Censo 2024 - Tenencia de Vivienda y Brecha Digital",
+    page_title="Dashboard - Tenencia de vivienda y brecha digital",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
