@@ -265,19 +265,19 @@ with col3:
 
 # Tabs definitions
 tab1, tab2 = st.tabs([
-    "🏠 Tenencia de Vivienda",
-    "💻 Tecnologías y Distribución Territorial"
+    "🏠 Tenencia de vivienda",
+    "💻 Tecnologías, distribución territorial y correlación"
 ])
 
 # -------------------------------------------------------------
 # TAB 1: TENENCIA DE VIVIENDA
 # -------------------------------------------------------------
 with tab1:
-    st.subheader("Análisis de Tenencia de Vivienda")
+    st.subheader("Análisis de tenencia de vivienda")
     st.write("Explora cómo se distribuyen las viviendas según el área geográfica y estado de pago.")
     
     # 1. Sunburst: Jerarquía por Área y Estado
-    st.markdown("### Jerarquía de Vivienda Propia: Área y Estado")
+    st.markdown("### Jerarquía de vivienda propia: área y estado")
     
     piyg_palette = px.colors.diverging.PiYG
     
@@ -337,7 +337,7 @@ with tab1:
     
     # 3. Proportion by Cycle of Life (Age and Professional Status)
     with col_bottom_left:
-        st.markdown("### Proporción de vivienda pagada por Edad")
+        st.markdown("### Proporción de vivienda pagada por edad")
         
         df_age = pd.DataFrame(data["age_ownership"])
         if selected_region_id is not None:
@@ -384,7 +384,7 @@ with tab1:
         
     # 4. Stacked Bar Chart: Tenencia por Condición Profesional
     with col_bottom_right:
-        st.markdown("### Distribución de Tenencia según Condición Profesional")
+        st.markdown("### Distribución de tenencia según condición profesional")
         
         df_ten = pd.DataFrame(data["tenencia"])
         if selected_region_id is not None:
@@ -455,11 +455,11 @@ with tab1:
 # TAB 2: TECNOLOGÍAS Y DISTRIBUCIÓN TERRITORIAL
 # -------------------------------------------------------------
 with tab2:
-    st.subheader("Acceso a Tecnologías y Distribución Territorial")
+    st.subheader("Acceso a tecnologías y distribución territorial")
     st.write("Analiza el acceso general a tecnologías digitales y la distribución de la brecha de vivienda pagada en el territorio nacional.")
     
     # 5. Radar Chart: Tech access proportions
-    st.markdown("### Acceso a Tecnologías Digitales (Perfil General)")
+    st.markdown("### Acceso a tecnologías digitales")
     
     df_rad = pd.DataFrame(data["radar"])
     if selected_region_id is not None:
@@ -527,7 +527,7 @@ with tab2:
     st.markdown("---")
     
     # Maps section
-    st.markdown("### Análisis Espacial y Territorial de Brechas")
+    st.markdown("### Análisis espacial y territorial de brechas")
     if chile_geo_filtrado is None:
         st.error("No se pudo cargar el mapa base de Chile. Por favor verifica tu conexión a internet.")
     else:
@@ -607,13 +607,13 @@ with tab2:
 
         col_map, col_scatter = st.columns([1.1, 1])
         with col_map:
-            st.markdown("#### Brecha Espacial en Vivienda Propia Pagada")
+            st.markdown("#### Brecha espacial en vivienda propia pagada")
             st.write("Diferencia porcentual entre Profesionales y No Profesionales (Adultos ≥ 18 años).")
             st.plotly_chart(fig_map, use_container_width=True)
             
         with col_scatter:
-            st.markdown("#### Correlación Espacial: Diagrama de Dispersión de Moran")
-            st.write("Relación entre la brecha de una región (eje X) y el promedio de la brecha de sus regiones vecinas (eje Y).")
+            st.markdown("#### Correlación Espacial")
+            st.write("Cada punto muestra la diferencia de una región (eje X) frente al promedio de esa diferencia en sus regiones vecinas (eje Y).")
             
             if "spatial_correlation" in data:
                 import numpy as np
