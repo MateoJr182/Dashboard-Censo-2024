@@ -264,149 +264,80 @@ with col3:
     """, unsafe_allow_html=True)
 
 # Tabs definitions
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2 = st.tabs([
     "🏠 Tenencia de Vivienda",
-    "💻 Acceso Tecnológico",
-    "🗺️ Distribución Territorial"
+    "💻 Tecnologías y Distribución Territorial"
 ])
 
 # -------------------------------------------------------------
 # TAB 1: TENENCIA DE VIVIENDA
 # -------------------------------------------------------------
 with tab1:
-    st.subheader("Análisis de Tenencia y Jerarquías de Vivienda")
-    st.write("Explora cómo se distribuyen las viviendas según el área geográfica, tipo y estado de pago.")
-    
-    col_left, col_right = st.columns(2)
+    st.subheader("Análisis de Tenencia de Vivienda")
+    st.write("Explora cómo se distribuyen las viviendas según el área geográfica y estado de pago.")
     
     # 1. Sunburst: Jerarquía por Área y Estado
-    with col_left:
-        st.markdown("### Jerarquía de Vivienda Propia: Área y Estado")
-        
-        piyg_palette = px.colors.diverging.PiYG
-        
-        # Aggregate counts for Sunburst
-        dist_full = df_housing.groupby(["area_name", "Estado"])["Cantidad"].sum().reset_index()
-        
-        labels, parents, ids, values, colors = [], [], [], [], []
-        # Nivel 1: Areas
-        for area in ["Urbano", "Rural"]:
-            sub = dist_full[dist_full["area_name"] == area]
-            total = sub["Cantidad"].sum()
-            if total > 0:
-                labels.append(area)
-                parents.append("")
-                ids.append(area)
-                values.append(total)
-                colors.append(piyg_palette[0] if area == "Urbano" else piyg_palette[-1])
-                
-                # Nivel 2: Estado
-                for _, row in sub.iterrows():
-                    labels.append(row["Estado"])
-                    parents.append(area)
-                    ids.append(f"{area}-{row['Estado']}")
-                    values.append(row["Cantidad"])
-                    if area == "Urbano":
-                        colors.append(piyg_palette[1] if row["Estado"] == "Pagada" else piyg_palette[3])
-                    else:
-                        colors.append(piyg_palette[-2] if row["Estado"] == "Pagada" else piyg_palette[-4])
-        
-        if len(ids) > 0:
-            fig_sun = go.Figure(
-                go.Sunburst(
-                    ids=ids,
-                    labels=labels,
-                    parents=parents,
-                    values=values,
-                    branchvalues="total",
-                    marker=dict(colors=colors, line=dict(color="white", width=2)),
-                    textinfo="label+percent parent",
-                    insidetextorientation="radial",
-                    textfont=dict(size=13),
-                )
+    st.markdown("### Jerarquía de Vivienda Propia: Área y Estado")
+    
+    piyg_palette = px.colors.diverging.PiYG
+    
+    # Aggregate counts for Sunburst
+    dist_full = df_housing.groupby(["area_name", "Estado"])["Cantidad"].sum().reset_index()
+    
+    labels, parents, ids, values, colors = [], [], [], [], []
+    # Nivel 1: Areas
+    for area in ["Urbano", "Rural"]:
+        sub = dist_full[dist_full["area_name"] == area]
+        total = sub["Cantidad"].sum()
+        if total > 0:
+            labels.append(area)
+            parents.append("")
+            ids.append(area)
+            values.append(total)
+            colors.append(piyg_palette[0] if area == "Urbano" else piyg_palette[-1])
+            
+            # Nivel 2: Estado
+            for _, row in sub.iterrows():
+                labels.append(row["Estado"])
+                parents.append(area)
+                ids.append(f"{area}-{row['Estado']}")
+                values.append(row["Cantidad"])
+                if area == "Urbano":
+                    colors.append(piyg_palette[1] if row["Estado"] == "Pagada" else piyg_palette[3])
+                else:
+                    colors.append(piyg_palette[-2] if row["Estado"] == "Pagada" else piyg_palette[-4])
+    
+    if len(ids) > 0:
+        fig_sun = go.Figure(
+            go.Sunburst(
+                ids=ids,
+                labels=labels,
+                parents=parents,
+                values=values,
+                branchvalues="total",
+                marker=dict(colors=colors, line=dict(color="white", width=2)),
+                textinfo="label+percent parent",
+                insidetextorientation="radial",
+                textfont=dict(size=13),
             )
-            fig_sun.update_layout(
-                height=500,
-                margin=dict(t=20, l=10, r=10, b=10),
-                paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)'
-            )
-            st.plotly_chart(fig_sun, use_container_width=True)
-        else:
-            st.warning("No hay datos disponibles para la combinación de filtros seleccionada.")
-
-    # 2. Treemap: Área, Tipo y Estado
-    with col_right:
-        st.markdown("### Estructura de Proporciones (Área -> Tipo -> Estado)")
-        
-        # Map p2_tipo_vivienda to names (Casa = 1, Departamento = 3)
-        df_tree_data = df_housing[df_housing["p2_tipo_vivienda"].isin([1, 3])].copy()
-        df_tree_data["tipo_viv_name"] = df_tree_data["p2_tipo_vivienda"].map({1: "Casa", 3: "Departamento"})
-        
-        df_tree = df_tree_data.groupby(["area_name", "tipo_viv_name", "Estado"])["Cantidad"].sum().reset_index()
-        
-        labels_t, parents_t, ids_t, values_t, colors_t = [], [], [], [], []
-        
-        # Nivel 1: Área
-        for area in ["Urbano", "Rural"]:
-            u_total = df_tree[df_tree["area_name"] == area]["Cantidad"].sum()
-            if u_total > 0:
-                labels_t.append(area)
-                parents_t.append("")
-                ids_t.append(area)
-                values_t.append(u_total)
-                colors_t.append(piyg_palette[0] if area == "Urbano" else piyg_palette[-1])
-                
-                # Nivel 2: Tipo
-                for tipo in ["Casa", "Departamento"]:
-                    sub_total = df_tree[(df_tree["area_name"] == area) & (df_tree["tipo_viv_name"] == tipo)]["Cantidad"].sum()
-                    if sub_total > 0:
-                        labels_t.append(tipo)
-                        parents_t.append(area)
-                        ids_t.append(f"{area}/{tipo}")
-                        values_t.append(sub_total)
-                        colors_t.append(piyg_palette[1] if area == "Urbano" else piyg_palette[-2])
-                        
-                        # Nivel 3: Estado
-                        for _, row in df_tree[(df_tree["area_name"] == area) & (df_tree["tipo_viv_name"] == tipo)].iterrows():
-                            labels_t.append(row["Estado"])
-                            parents_t.append(f"{area}/{tipo}")
-                            ids_t.append(f"{area}/{tipo}/{row['Estado']}")
-                            values_t.append(row["Cantidad"])
-                            if area == "Urbano":
-                                colors_t.append(piyg_palette[2] if row["Estado"] == "Pagada" else piyg_palette[4])
-                            else:
-                                colors_t.append(piyg_palette[-3] if row["Estado"] == "Pagada" else piyg_palette[-5])
-                                
-        if len(ids_t) > 0:
-            fig_tree = go.Figure(
-                go.Treemap(
-                    ids=ids_t,
-                    labels=labels_t,
-                    parents=parents_t,
-                    values=values_t,
-                    branchvalues="total",
-                    marker=dict(colors=colors_t),
-                    texttemplate="%{label} %{percentParent:.0%}<br>%{value:,.0f}",
-                    textfont=dict(size=12)
-                )
-            )
-            fig_tree.update_layout(
-                height=500,
-                margin=dict(t=20, l=10, r=10, b=10),
-                paper_bgcolor='rgba(0,0,0,0)'
-            )
-            st.plotly_chart(fig_tree, use_container_width=True)
-        else:
-            st.warning("No hay datos disponibles para la combinación de filtros.")
+        )
+        fig_sun.update_layout(
+            height=500,
+            margin=dict(t=20, l=10, r=10, b=10),
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        st.plotly_chart(fig_sun, use_container_width=True)
+    else:
+        st.warning("No hay datos disponibles para la combinación de filtros seleccionada.")
 
     st.markdown("---")
     
     col_bottom_left, col_bottom_right = st.columns(2)
     
-    # 3. Probability by Cycle of Life (Age and Professional Status)
+    # 3. Proportion by Cycle of Life (Age and Professional Status)
     with col_bottom_left:
-        st.markdown("### Probabilidad de Vivienda Pagada por Ciclo de Vida")
+        st.markdown("### Proporción de vivienda pagada por Edad")
         
         df_age = pd.DataFrame(data["age_ownership"])
         if selected_region_id is not None:
@@ -418,14 +349,19 @@ with tab1:
             count=("count", "sum")
         ).reset_index()
         
-        # Map Numeric age_quinquenal to String range
-        age_grouped["edad_quinquenal_str"] = age_grouped["edad_quinquenal"].map(AGE_MAP)
+        # Map Numeric age_quinquenal to exact representatives from the chart
+        AGE_MAP_17 = {
+            15: "17", 20: "22", 25: "27", 30: "32", 35: "37", 40: "42",
+            45: "47", 50: "52", 55: "57", 60: "62", 65: "67", 70: "72",
+            75: "77", 80: "82", 85: "87+"
+        }
+        age_grouped["edad_quinquenal_str"] = age_grouped["edad_quinquenal"].map(AGE_MAP_17)
         age_grouped["Porcentaje Pagada"] = age_grouped["is_pagada_sum"] / age_grouped["count"] * 100
         age_grouped["Condición profesional"] = age_grouped["profesional"].map(prof_desc_map)
         
         # Sort values chronologically
-        orden_edades = ["15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85+"]
-        age_grouped["edad_quinquenal_cat"] = pd.Categorical(age_grouped["edad_quinquenal_str"], categories=orden_edades, ordered=True)
+        orden_edades_17 = ["17", "22", "27", "32", "37", "42", "47", "52", "57", "62", "67", "72", "77", "82", "87+"]
+        age_grouped["edad_quinquenal_cat"] = pd.Categorical(age_grouped["edad_quinquenal_str"], categories=orden_edades_17, ordered=True)
         age_grouped = age_grouped.sort_values("edad_quinquenal_cat").dropna(subset=["edad_quinquenal_cat"])
         
         fig_prob = px.line(
@@ -435,7 +371,7 @@ with tab1:
             color="Condición profesional",
             markers=True,
             color_discrete_map={"Profesional": "#1b9e77", "No Profesional": "#e7298a"},
-            labels={"edad_quinquenal_cat": "Tramo de Edad", "Porcentaje Pagada": "% Vivienda Propia Pagada"}
+            labels={"edad_quinquenal_cat": "Tramo de edad", "Porcentaje Pagada": "% Vivienda Pagada"}
         )
         fig_prob.update_layout(
             template="simple_white",
@@ -486,212 +422,112 @@ with tab1:
         )
         st.plotly_chart(fig_ten_bar, use_container_width=True)
 
-# -------------------------------------------------------------
-# TAB 2: ACCESO TECNOLÓGICO Y CONECTIVIDAD
-# -------------------------------------------------------------
-with tab2:
-    st.subheader("Acceso a Tecnologías y Conectividad")
-    st.write("Analiza las brechas digitales y de conectividad según tramos de edad y condición profesional.")
+    st.markdown("---")
+    st.markdown("### Proporción de vivienda propia pagada según condición profesional en Chile")
+    st.write("Evolución temporal del porcentaje de viviendas pagadas, según la condición profesional del jefe de hogar (CASEN 2006–2024).")
     
-    col_tech_left, col_tech_right = st.columns(2)
-    
-    # 5. Radar Chart: Tech access proportions
-    with col_tech_left:
-        st.markdown("### Acceso a Tecnologías Digitales (Perfil General)")
+    if "casen_history" in data:
+        df_casen_hist = pd.DataFrame(data["casen_history"])
         
-        df_rad = pd.DataFrame(data["radar"])
-        if selected_region_id is not None:
-            df_rad = df_rad[df_rad["region"] == selected_region_id]
-            
-        rad_grouped = df_rad.groupby("profesional").sum().reset_index()
-        
-        SERVICIOS_MAP = {
-            "tel_movil_sum": "Tel. Móvil",
-            "compu_sum": "Computador",
-            "tablet_sum": "Tablet",
-            "internet_fija_sum": "Internet Fija",
-            "internet_movil_sum": "Internet Móvil"
-        }
-        
-        radar_list = []
-        for col_name, s_label in SERVICIOS_MAP.items():
-            for prof in [1, 0]:
-                sub_row = rad_grouped[rad_grouped["profesional"] == prof]
-                if not sub_row.empty:
-                    acc_val = (sub_row[col_name].values[0] / sub_row["count"].values[0] * 100)
-                else:
-                    acc_val = 0
-                radar_list.append({
-                    "Servicio": s_label,
-                    "Condición": prof_desc_map[prof],
-                    "Acceso": acc_val
-                })
-        
-        df_radar_plot = pd.DataFrame(radar_list)
-        
-        fig_radar = px.line_polar(
-            df_radar_plot,
-            r="Acceso",
-            theta="Servicio",
+        fig_casen = px.line(
+            df_casen_hist,
+            x="año",
+            y="Porcentaje Pagada",
             color="Condición",
-            line_close=True,
-            markers=True,
-            color_discrete_map={"Profesional": "#1b9e77", "No Profesional": "#e7298a"}
-        )
-        fig_radar.update_traces(fill="toself", opacity=0.4)
-        fig_radar.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 100],
-                    ticksuffix="%",
-                    gridcolor="lightgray",
-                    tickfont=dict(size=11)
-                ),
-                angularaxis=dict(
-                    gridcolor="lightgray",
-                    tickfont=dict(size=12, color="black")
-                )
-            ),
-            legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
-            height=450,
-            margin=dict(t=20, l=40, r=40, b=40)
-        )
-        st.plotly_chart(fig_radar, use_container_width=True)
-
-    # 6. Line Plot: Internet Access (acceso_internet) by Age/Prof
-    with col_tech_right:
-        st.markdown("### Acceso a Internet por Edad y Condición Profesional")
-        
-        df_int = pd.DataFrame(data["internet"])
-        if selected_region_id is not None:
-            df_int = df_int[df_int["region"] == selected_region_id]
-            
-        int_grouped = df_int.groupby(["edad_quinquenal", "profesional"]).sum().reset_index()
-        int_grouped["edad_quinquenal_str"] = int_grouped["edad_quinquenal"].map(AGE_MAP)
-        int_grouped["Acceso a Internet"] = int_grouped["internet_sum"] / int_grouped["count"]
-        int_grouped["Condición profesional"] = int_grouped["profesional"].map(prof_desc_map)
-        
-        orden_edades = ["15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85+"]
-        int_grouped["edad_quinquenal_cat"] = pd.Categorical(int_grouped["edad_quinquenal_str"], categories=orden_edades, ordered=True)
-        int_grouped = int_grouped.sort_values("edad_quinquenal_cat").dropna(subset=["edad_quinquenal_cat"])
-        
-        fig_int_line = px.line(
-            int_grouped,
-            x="edad_quinquenal_cat",
-            y="Acceso a Internet",
-            color="Condición profesional",
             markers=True,
             color_discrete_map={"Profesional": "#1b9e77", "No Profesional": "#e7298a"},
-            labels={"edad_quinquenal_cat": "Tramo de Edad", "Acceso a Internet": "Tasa de Acceso (%)"}
+            labels={"año": "Año de encuesta", "Porcentaje Pagada": "% Vivienda Pagada", "Condición": "Condición profesional"}
         )
-        fig_int_line.update_layout(
+        
+        fig_casen.update_layout(
             template="simple_white",
             legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
-            yaxis=dict(range=[0, 1.05], tickformat=".0%"),
+            yaxis=dict(ticksuffix="%", range=[0, 100]),
+            xaxis=dict(tickvals=[2006, 2009, 2011, 2013, 2015, 2017, 2020, 2022, 2024]),
             height=400,
             margin=dict(t=20, l=10, r=10, b=10)
         )
-        st.plotly_chart(fig_int_line, use_container_width=True)
+        st.plotly_chart(fig_casen, use_container_width=True)
+    else:
+        st.warning("Datos de evolución histórica no disponibles.")
 
+# -------------------------------------------------------------
+# TAB 2: TECNOLOGÍAS Y DISTRIBUCIÓN TERRITORIAL
+# -------------------------------------------------------------
+with tab2:
+    st.subheader("Acceso a Tecnologías y Distribución Territorial")
+    st.write("Analiza el acceso general a tecnologías digitales y la distribución de la brecha de vivienda pagada en el territorio nacional.")
+    
+    # 5. Radar Chart: Tech access proportions
+    st.markdown("### Acceso a Tecnologías Digitales (Perfil General)")
+    
+    df_rad = pd.DataFrame(data["radar"])
+    if selected_region_id is not None:
+        df_rad = df_rad[df_rad["region"] == selected_region_id]
+        
+    rad_grouped = df_rad.groupby("profesional").sum().reset_index()
+    
+    SERVICIOS_MAP = {
+        "tel_movil_sum": "Tel. Móvil",
+        "compu_sum": "Computador",
+        "tablet_sum": "Tablet",
+        "internet_fija_sum": "Internet Fija",
+        "internet_movil_sum": "Internet Móvil"
+    }
+    
+    radar_list = []
+    for col_name, s_label in SERVICIOS_MAP.items():
+        for prof in [1, 0]:
+            sub_row = rad_grouped[rad_grouped["profesional"] == prof]
+            if not sub_row.empty:
+                acc_val = (sub_row[col_name].values[0] / sub_row["count"].values[0] * 100)
+            else:
+                acc_val = 0
+            radar_list.append({
+                "Servicio": s_label,
+                "Condición": prof_desc_map[prof],
+                "Acceso": acc_val
+            })
+    
+    df_radar_plot = pd.DataFrame(radar_list)
+    
+    fig_radar = px.line_polar(
+        df_radar_plot,
+        r="Acceso",
+        theta="Servicio",
+        color="Condición",
+        line_close=True,
+        markers=True,
+        color_discrete_map={"Profesional": "#1b9e77", "No Profesional": "#e7298a"}
+    )
+    fig_radar.update_traces(fill="toself", opacity=0.4)
+    fig_radar.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                ticksuffix="%",
+                gridcolor="lightgray",
+                tickfont=dict(size=11)
+            ),
+            angularaxis=dict(
+                gridcolor="lightgray",
+                tickfont=dict(size=12, color="black")
+            )
+        ),
+        legend=dict(orientation="h", yanchor="bottom", y=-0.15, xanchor="center", x=0.5),
+        height=450,
+        margin=dict(t=20, l=40, r=40, b=40)
+    )
+    
+    col_radar_mid, _ = st.columns([2, 1])
+    with col_radar_mid:
+        st.plotly_chart(fig_radar, use_container_width=True)
+        
     st.markdown("---")
     
-    col_tech_bot_left, col_tech_bot_right = st.columns(2)
-    
-    # 7. Line Plot: All services by age and professional status
-    with col_tech_bot_left:
-        st.markdown("### Acceso Detallado a Tecnologías por Edad")
-        
-        df_t = pd.DataFrame(data["tech"])
-        if selected_region_id is not None:
-            df_t = df_t[df_t["region"] == selected_region_id]
-            
-        t_grouped = df_t.groupby(["edad_quinquenal", "profesional"]).sum().reset_index()
-        
-        services_detail = {
-            "tel_movil_sum": "Teléfono móvil",
-            "compu_sum": "Computador",
-            "tablet_sum": "Tablet",
-            "internet_fija_sum": "Internet fija",
-            "internet_movil_sum": "Internet móvil",
-            "internet_satelital_sum": "Internet satelital"
-        }
-        
-        t_list = []
-        for col_name, s_name in services_detail.items():
-            for (eq, prof), gdf in t_grouped.groupby(["edad_quinquenal", "profesional"]):
-                rate = gdf[col_name].values[0] / gdf["count"].values[0] if gdf["count"].values[0] > 0 else 0
-                t_list.append({
-                    "edad_quinquenal_val": eq,
-                    "profesional_desc": prof_desc_map[prof],
-                    "Acceso": rate,
-                    "Servicio": s_name
-                })
-        df_tech_detail = pd.DataFrame(t_list)
-        df_tech_detail["edad_quinquenal_str"] = df_tech_detail["edad_quinquenal_val"].map(AGE_MAP)
-        
-        orden_edades = ["15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85+"]
-        df_tech_detail["edad_quinquenal_cat"] = pd.Categorical(df_tech_detail["edad_quinquenal_str"], categories=orden_edades, ordered=True)
-        df_tech_detail = df_tech_detail.sort_values("edad_quinquenal_cat").dropna(subset=["edad_quinquenal_cat"])
-        
-        fig_tech_detail = px.line(
-            df_tech_detail,
-            x="edad_quinquenal_cat",
-            y="Acceso",
-            color="Servicio",
-            line_dash="profesional_desc",
-            markers=True,
-            labels={"edad_quinquenal_cat": "Tramo de Edad", "Acceso": "Tasa de Acceso (%)"}
-        )
-        fig_tech_detail.update_layout(
-            template="simple_white",
-            yaxis=dict(range=[0, 1.05], tickformat=".0%"),
-            height=450,
-            margin=dict(t=20, l=10, r=10, b=10),
-            legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5)
-        )
-        st.plotly_chart(fig_tech_detail, use_container_width=True)
-
-    # 8. Line Plot: Selected technologies (Mobile, Computer, Mobile internet) (15+ years)
-    with col_tech_bot_right:
-        st.markdown("### Acceso a Tecnologías Seleccionadas (15+ años)")
-        
-        # We filter for age >= 15
-        df_tech_sel = df_tech_detail[
-            df_tech_detail["Servicio"].isin(["Teléfono móvil", "Computador", "Internet móvil"])
-        ].copy()
-        
-        line_dash_map = {
-            "Profesional": "solid",
-            "No Profesional": "dot"
-        }
-        
-        fig_tech_sel = px.line(
-            df_tech_sel,
-            x="edad_quinquenal_cat",
-            y="Acceso",
-            color="Servicio",
-            line_dash="profesional_desc",
-            line_dash_map=line_dash_map,
-            markers=True,
-            labels={"edad_quinquenal_cat": "Tramo de Edad (desde 15 años)", "Acceso": "Tasa de Acceso (%)"}
-        )
-        fig_tech_sel.update_layout(
-            template="simple_white",
-            yaxis=dict(range=[0, 1.05], tickformat=".0%"),
-            height=450,
-            margin=dict(t=20, l=10, r=10, b=10),
-            legend=dict(orientation="h", yanchor="top", y=-0.15, xanchor="center", x=0.5)
-        )
-        st.plotly_chart(fig_tech_sel, use_container_width=True)
-
-# -------------------------------------------------------------
-# TAB 3: ANÁLISIS GEOGRÁFICO Y LISA
-# -------------------------------------------------------------
-with tab3:
-    st.subheader("Análisis Espacial y Territorial de Brechas")
-    st.write("Visualiza la brecha en vivienda propia pagada a lo largo del territorio nacional y analiza los agrupamientos espaciales significativos.")
-    
+    # Maps section
+    st.markdown("### Análisis Espacial y Territorial de Brechas")
     if chile_geo_filtrado is None:
         st.error("No se pudo cargar el mapa base de Chile. Por favor verifica tu conexión a internet.")
     else:
@@ -721,107 +557,167 @@ with tab3:
             for f in chile_geo_filtrado["features"]
         }
         brecha_map["Región"] = brecha_map["region"].map(nombres_geo)
+
+        # Define Choropleth Map for brecha
+        fig_map = px.choropleth(
+            brecha_map,
+            geojson=chile_geo_filtrado,
+            locations="region",
+            featureidkey="properties.codregion",
+            color="Brecha (p.p.)",
+            color_continuous_scale=px.colors.diverging.PiYG,
+            color_continuous_midpoint=0,
+            range_color=[-25, 25],
+            hover_name="Región",
+            hover_data={
+                "Profesional": ":.1f",
+                "No Profesional": ":.1f",
+                "Brecha (p.p.)": ":.1f",
+                "region": False,
+            },
+            labels={
+                "Profesional": "% Prof. c/ viv. pagada",
+                "No Profesional": "% No Prof. c/ viv. pagada",
+                "Brecha (p.p.)": "Brecha (%)"
+            }
+        )
         
-        # Add LISA cluster static results
-        df_lisa_static = pd.DataFrame(data["lisa"])
-        brecha_map = brecha_map.merge(df_lisa_static[["region", "cluster_lisa"]], on="region", how="left")
-        
-        col_map1, col_map2 = st.columns(2)
-        
-        with col_map1:
-            st.markdown("### Brecha Espacial en Vivienda Propia Pagada")
-            st.write("Muestra la diferencia porcentual entre Profesionales y No Profesionales (Adultos ≥ 18 años).")
-            
-            fig_map = px.choropleth(
-                brecha_map,
-                geojson=chile_geo_filtrado,
-                locations="region",
-                featureidkey="properties.codregion",
-                color="Brecha (p.p.)",
-                color_continuous_scale=px.colors.diverging.PiYG,
-                color_continuous_midpoint=0,
-                hover_name="Región",
-                hover_data={
-                    "Profesional": ":.1f",
-                    "No Profesional": ":.1f",
-                    "Brecha (p.p.)": ":.1f",
-                    "region": False,
-                },
-                labels={
-                    "Profesional": "% Prof. c/ viv. pagada",
-                    "No Profesional": "% No Prof. c/ viv. pagada",
-                }
+        fig_map.update_geos(
+            visible=False,
+            lataxis_range=[-56, -17],
+            lonaxis_range=[-76, -64],
+        )
+        fig_map.update_layout(
+            height=650,
+            margin=dict(l=0, r=0, t=20, b=0),
+            coloraxis_colorbar=dict(
+                title="Brecha (%)",
+                thickness=15,
+                len=0.75,
+                y=0.82,
+                yanchor="top",
+                tickvals=[-25, -20, -15, -10, -5, 0, 5, 10, 15, 20, 25],
+                ticktext=[
+                    "-25% (Predominancia no profesional)",
+                    "-20%", "-15%", "-10%", "-5%", "0%", "5%", "10%", "15%", "20%",
+                    "25% (Predominancia profesional)"
+                ]
             )
-            
-            fig_map.update_geos(
-                visible=False,
-                lataxis_range=[-56, -17],
-                lonaxis_range=[-76, -64],
-            )
-            fig_map.update_layout(
-                height=700,
-                margin=dict(l=0, r=0, t=20, b=0),
-                coloraxis_colorbar=dict(
-                    title="Brecha<br>(p.p.)",
-                    thickness=15,
-                    len=0.7,
-                    ticksuffix=" pp",
-                )
-            )
+        )
+
+        col_map, col_scatter = st.columns([1.1, 1])
+        with col_map:
+            st.markdown("#### Brecha Espacial en Vivienda Propia Pagada")
+            st.write("Diferencia porcentual entre Profesionales y No Profesionales (Adultos ≥ 18 años).")
             st.plotly_chart(fig_map, use_container_width=True)
             
-        with col_map2:
-            st.markdown("### Agrupamiento Espacial (LISA) de la Brecha")
-            st.write("Identificación de patrones espaciales y regiones atípicas significativas (Moran Local).")
+        with col_scatter:
+            st.markdown("#### Correlación Espacial: Diagrama de Dispersión de Moran")
+            st.write("Relación entre la brecha de una región (eje X) y el promedio de la brecha de sus regiones vecinas (eje Y).")
             
-            colores_lisa = {
-                "Alto-Alto": "#b2182b",
-                "Bajo-Bajo": "#2166ac",
-                "Alto-Bajo": "#ef8a62",
-                "Bajo-Alto": "#67a9cf",
-                "No significativo": "#d9d9d9",
-            }
-            
-            fig_lisa = px.choropleth(
-                brecha_map,
-                geojson=chile_geo_filtrado,
-                locations="region",
-                featureidkey="properties.codregion",
-                color="cluster_lisa",
-                color_discrete_map=colores_lisa,
-                hover_name="Región",
-                hover_data={
-                    "Brecha (p.p.)": ":.1f",
-                    "cluster_lisa": True,
-                    "region": False,
-                },
-                labels={
-                    "cluster_lisa": "Clasificación LISA",
-                    "Brecha (p.p.)": "Brecha (p.p.)"
-                }
-            )
-            
-            fig_lisa.update_geos(
-                visible=False,
-                lataxis_range=[-56, -17],
-                lonaxis_range=[-76, -64],
-            )
-            fig_lisa.update_layout(
-                height=700,
-                margin=dict(l=0, r=0, t=20, b=0),
-                legend=dict(
-                    title="Clasificación LISA",
-                    orientation="v",
-                    yanchor="top",
-                    y=0.9,
-                    xanchor="left",
-                    x=0.02,
-                    bordercolor="gray",
-                    borderwidth=1,
-                    bgcolor="white"
+            if "spatial_correlation" in data:
+                import numpy as np
+                df_spatial = pd.DataFrame(data["spatial_correlation"]["regions_spatial"])
+                moran_i = data["spatial_correlation"]["moran_i"]
+                
+                # Add human readable region names
+                df_spatial["Región"] = df_spatial["region"].map(REGIONES_MAP)
+                
+                fig_sp_scatter = px.scatter(
+                    df_spatial,
+                    x="z_brecha",
+                    y="z_lag_brecha",
+                    color="quadrant",
+                    text="Región",
+                    hover_name="Región",
+                    hover_data={
+                        "brecha": ":.2f",
+                        "lag_brecha": ":.2f",
+                        "z_brecha": False,
+                        "z_lag_brecha": False,
+                        "quadrant": True
+                    },
+                    color_discrete_map={
+                        "Alto-Alto": "#b2182b",
+                        "Bajo-Bajo": "#2166ac",
+                        "Alto-Bajo": "#ef8a62",
+                        "Bajo-Alto": "#67a9cf"
+                    },
+                    labels={
+                        "z_brecha": "Brecha Estandarizada",
+                        "z_lag_brecha": "Lag Espacial Estandarizado",
+                        "quadrant": "Cuadrante Moran"
+                    }
                 )
-            )
-            st.plotly_chart(fig_lisa, use_container_width=True)
+                
+                # Add regression line
+                x_line = np.linspace(df_spatial["z_brecha"].min() - 0.2, df_spatial["z_brecha"].max() + 0.2, 100)
+                y_line = moran_i * x_line
+                fig_sp_scatter.add_trace(
+                    go.Scatter(
+                        x=x_line,
+                        y=y_line,
+                        mode="lines",
+                        name=f"Regresión (I = {moran_i:.4f})",
+                        line=dict(color="#555555", dash="dash")
+                    )
+                )
+                
+                # Add vertical and horizontal lines at 0
+                fig_sp_scatter.add_vline(x=0, line_width=1, line_dash="dash", line_color="lightgray")
+                fig_sp_scatter.add_hline(y=0, line_width=1, line_dash="dash", line_color="lightgray")
+                
+                # Define a dictionary of custom text positions to prevent label overlaps
+                TEXT_POS_MAP = {
+                    1: "top center",       # Tarapacá
+                    2: "bottom center",    # Antofagasta
+                    3: "top left",         # Atacama
+                    4: "bottom right",     # Coquimbo
+                    5: "top right",        # Valparaíso
+                    6: "top left",         # O'Higgins
+                    7: "top right",        # Maule
+                    8: "bottom left",      # Bío-Bío
+                    9: "top left",         # La Araucanía
+                    10: "bottom center",   # Los Lagos
+                    11: "bottom right",    # Aysén
+                    12: "bottom left",     # Magallanes
+                    13: "bottom right",    # Metropolitana
+                    14: "top right",       # Los Ríos
+                    15: "top right",       # Arica
+                    16: "bottom right"     # Ñuble
+                }
+                
+                # Apply custom text positions trace-by-trace to handle the grouped scatter plot
+                for trace in fig_sp_scatter.data:
+                    if trace.mode and "text" in trace.mode and trace.text is not None:
+                        trace_text_positions = []
+                        for reg_name in trace.text:
+                            matching_rows = df_spatial[df_spatial["Región"] == reg_name]
+                            if not matching_rows.empty:
+                                reg_id = matching_rows["region"].values[0]
+                                pos = TEXT_POS_MAP.get(reg_id, "top center")
+                            else:
+                                pos = "top center"
+                            trace_text_positions.append(pos)
+                        trace.textposition = trace_text_positions
+                
+                # Adjust markers style
+                fig_sp_scatter.update_traces(
+                    marker=dict(size=12, line=dict(color="white", width=1))
+                )
+                
+                fig_sp_scatter.update_layout(
+                    template="simple_white",
+                    xaxis_title="Brecha Estandarizada (% Prof. − % No Prof.)",
+                    yaxis_title="Lag Espacial de la Brecha (Promedio Vecinos)",
+                    legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="center", x=0.5),
+                    height=650,
+                    margin=dict(t=20, l=10, r=10, b=10)
+                )
+                
+                st.plotly_chart(fig_sp_scatter, use_container_width=True)
+            else:
+                st.warning("Datos de correlación espacial no disponibles.")
 
 # Footer credits
 st.markdown("---")
