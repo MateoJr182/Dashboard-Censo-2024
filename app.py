@@ -203,7 +203,7 @@ prof_desc_map = {1: "Profesional", 0: "No Profesional"}
 area_code_map = {1: "Urbano", 2: "Rural"}
 
 # Title Section
-st.markdown("<h1 class='main-title'>Dashboard Censo 2024</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='main-title'>Dashboard</h1>", unsafe_allow_html=True)
 st.markdown("<p class='subtitle'>Visualización interactiva de la tenencia de vivienda propia y brechas digitales por condición profesional</p>", unsafe_allow_html=True)
 
 # Data Filtering Logic based on user selection
