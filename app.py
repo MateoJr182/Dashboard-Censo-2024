@@ -176,7 +176,7 @@ def get_geojson():
 chile_geo_filtrado = get_geojson()
 
 # Sidebar Filters
-st.sidebar.image("https://es.wikipedia.org/wiki/Universidad_de_Concepci%C3%B3n#/media/Archivo:Escudo_de_la_Universidad_de_Concepci%C3%B3n.svg.png", width=120)
+st.sidebar.image("Escudo_udec.png", width=120)
 st.sidebar.title("Filtros del Dashboard")
 st.sidebar.write("Ajusta los parámetros para explorar los datos interactivos a nivel nacional o regional.")
 
